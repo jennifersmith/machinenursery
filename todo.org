@@ -1,0 +1,9 @@
+TODO!
+
++ Tidy up solution 
++ Figure out read in big file.
++ Read about different ways to find nearest neighbours:
+++ Space paritioning
+++ Linear search - what we are doing now but without a search
+
++ Run it with the big set!
