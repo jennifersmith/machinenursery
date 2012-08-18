@@ -1,4 +1,4 @@
-(ns machinenursery.core)
+(ns machinenursery.core (:require [clojure.string :as string]))
 
 (defn parse [file-contents] (map #(string/split % #",") (string/split-lines file-contents)))
 
