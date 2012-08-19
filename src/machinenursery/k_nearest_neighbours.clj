@@ -3,7 +3,7 @@
 
 
 (defn distance-between [fo1 fo2]
-         (Math/sqrt (apply + (map #(* % %) (map - fo1)))))
+         (Math/sqrt (apply + (map #(* % %) (map - fo1 fo2)))))
 
 (defn find-distances [training-set test-vector]
   (map (fn [{:keys [label pixels]}]
@@ -23,5 +23,6 @@
 (defn create-k-nearest [k training-set]
      (fn [test-vector]
        (let [k-nearest (find-k-nearest k training-set test-vector)]
+         (println k-nearest)
          (select-best k-nearest)
          )))

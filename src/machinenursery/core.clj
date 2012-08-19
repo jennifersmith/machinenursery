@@ -18,6 +18,7 @@
 (defn parse-test-set [reader] (map get-pixels (parse reader)))
 (defn parse-train-set [reader] (map create-tuple (parse reader)))
 
+
 (defn do-it []
   (with-open
       [test-set-rdr  (reader "test.csv")
@@ -26,3 +27,13 @@
           train-set (take 2000 (parse-train-set train-set-rdr))
           k-nearest (create-k-nearest 5 train-set)]
       (vec (map k-nearest (take 10 test-set))))))
+
+;; run it with n rows of the training vector to see if it is right
+;; - results to disk
+(defn test-it [n]
+  (with-open [train-set-rdr (reader "train.csv")]
+    (let [train-set (take 2000 (parse-train-set train-set-rdr))
+          k-nearest (create-k-nearest 5 train-set)]
+      (map vector
+           (map :label train-set)
+           (vec (map k-nearest (take n (map :pixels train-set))))))) )
