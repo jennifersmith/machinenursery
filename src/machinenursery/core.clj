@@ -1,54 +1,28 @@
-(ns machinenursery.core (:require [clojure.string :as string]))
+(ns machinenursery.core (:require [clojure.string :as string])
+(:use clojure.java.io machinenursery.k-nearest-neighbours))
 
-(defn parse [file-contents] (map #(string/split % #",") (string/split-lines file-contents)))
+(defn parse [reader]
+  (drop 1
+        (map #(string/split % #",") (line-seq reader))))
 
-(def whatever (parse (slurp "train_mini.csv")))
-
-(def test_mini (parse (slurp "test_mini.csv")))
-
-(def train_maxi (parse (slurp "train_maxi.csv")))
-
-(defn create-tuple [[ head & rem]]
-  {:pixels (get-pixels rem) :label head})
 
 (defn get-pixels [pix]
   (map #( Integer/parseInt %) pix))
 
-(def fuck_off (first (map get-pixels test_mini)))
-
-(defn diff-fuck-off [fo1 fo2] (Math/sqrt (apply + (map #(* % %) (map - fo1 fo2)))))
-
-(def train_mini (map create-tuple whatever))
-(def train_maxi (map create-tuple wh))
-(def fucking_fives (map :pixels (take 2 (filter #(= "5" (:label %)) train_mini))))
-(def fucking_twos (map :pixels (take 2 (filter #(= "2" (:label %)) train_mini))))
-
-(def just_one_fucking_two (first fucking_twos))
-
-(defn find-distances [training-set test-vector] (map (fn [{:keys [label pixels]}] {:label label :distance (diff-fuck-off test-vector pixels)}) training-set))
-
-(defn k-nearest [k training-set test-vector]
-  (take k
-        (sort-by :distance
-                 (find-distances training-set test-vector))))
-
-(defn predict-me-bitch [wannabe-nearest]
-  (ffirst
-   (reverse (sort-by #(count (val %)) (group-by :label wannabe-nearest)))))
-
-(defn predict-it [test_set test_vector ]
-  (predict-me-bitch
-   (k-nearest 5 test_set test_vector)))
+(defn create-tuple [[ head & rem]]
+  {:pixels (get-pixels rem) :label head})
 
 (defn dump-it [answers]
   (apply str (map println-str answers)))
 
-(def answers (map #(vector %1 (predict-it train_mini %2)) numberz pixelz))
+(defn parse-test-set [reader] (map get-pixels (parse reader)))
+(defn parse-train-set [reader] (map create-tuple (parse reader)))
 
-(def answers-awesome (pmap #(vector %1 (predict-it train_mini %2)) numberz pixelz))
-
-(use 'clojure.java.io)
-(defn stuff [answers]
-  (with-open [wrtr (writer "answers.out" :append true)]
-    (doseq [answer answers]
-      (.write wrtr (println-str answer)))))
+(defn do-it []
+  (with-open
+      [test-set-rdr  (reader "test.csv")
+       train-set-rdr (reader "train.csv")]
+    (let [test-set (parse-test-set test-set-rdr)
+          train-set (take 2000 (parse-train-set train-set-rdr))
+          k-nearest (create-k-nearest 5 train-set)]
+      (vec (map k-nearest (take 10 test-set))))))
