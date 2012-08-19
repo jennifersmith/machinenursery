@@ -36,9 +36,14 @@
               train-set-tail-rdr (reader "data/train_tail.csv")]
     (let [train-set (parse-train-set train-set-rdr)
           train-set-tail (parse-train-set train-set-tail-rdr)
-          k-nearest (create-k-nearest 5 train-set)]
-      (time (doseq [test-vector (take n train-set-tail)]
-              (let [result (k-nearest (:pixels test-vector))]
-                (doto result-writer
-                  (.write (str (:label test-vector) "," result "\n" ))
-                  (.flush))))))))
+          k-nearest (create-k-nearest 5 train-set)
+          test-vectors (take n train-set-tail)
+          results (map
+                   vector
+                   (map :label test-vectors)
+                   (pmap k-nearest (map :pixels test-vectors)))]
+      (time (doseq [result results]
+              (doto result-writer
+                (.write (apply str (interpose "," result)))
+                (.write "\n")
+                (.flush)))))))
