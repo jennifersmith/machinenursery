@@ -21,19 +21,24 @@
 
 (defn do-it []
   (with-open
-      [test-set-rdr  (reader "test.csv")
-       train-set-rdr (reader "train.csv")]
+      [test-set-rdr  (reader "data/test_head.csv")
+       train-set-rdr (reader "data/train_head.csv")]
     (let [test-set (parse-test-set test-set-rdr)
           train-set (take 2000 (parse-train-set train-set-rdr))
           k-nearest (create-k-nearest 5 train-set)]
       (vec (map k-nearest (take 10 test-set))))))
 
 ;; run it with n rows of the training vector to see if it is right
-;; - results to disk
+;; taking training data from the bottom. Use copy_files.sh to create the files
 (defn test-it [n]
-  (with-open [train-set-rdr (reader "train.csv")]
-    (let [train-set (take 2000 (parse-train-set train-set-rdr))
+  (with-open [result-writer (writer "output/test_results.log")
+              train-set-rdr (reader "data/train_head.csv")
+              train-set-tail-rdr (reader "data/train_tail.csv")]
+    (let [train-set (parse-train-set train-set-rdr)
+          train-set-tail (parse-train-set train-set-tail-rdr)
           k-nearest (create-k-nearest 5 train-set)]
-      (map vector
-           (map :label train-set)
-           (vec (map k-nearest (take n (map :pixels train-set))))))) )
+      (time (doseq [test-vector (take n train-set-tail)]
+              (let [result (k-nearest (:pixels test-vector))]
+                (doto result-writer
+                  (.write (str (:label test-vector) "," result "\n" ))
+                  (.flush))))))))

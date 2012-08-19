@@ -23,6 +23,5 @@
 (defn create-k-nearest [k training-set]
      (fn [test-vector]
        (let [k-nearest (find-k-nearest k training-set test-vector)]
-         (println k-nearest)
          (select-best k-nearest)
          )))

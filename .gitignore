@@ -6,6 +6,6 @@
 /.lein-failures
 /checkouts
 /.lein-deps-sum
-test.csv
-train.csv
+data/*
 target
+output/
