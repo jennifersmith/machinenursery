@@ -47,3 +47,11 @@
                 (.write (apply str (interpose "," result)))
                 (.write "\n")
                 (.flush)))))))
+
+(defn read-train-set [n]
+  (with-open [train-set-rd (reader "data/train.csv")]
+    (vec (take n (parse-train-set train-set-rd)))))
+
+(defn read-test-set [n]
+  (with-open [train-set-rd (reader "data/train.csv")]
+    (vec (take n (parse-train-set train-set-rd)))))
