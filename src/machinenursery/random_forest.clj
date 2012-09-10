@@ -53,7 +53,7 @@
 (def examples (apply list people-tuples))
 
 
-(defn make-forest [] (build-random-forest examples features1 5 200))
+(defn make-forest [m k] (build-random-forest examples features1 m k))
 
 (defn make-pixel-features []
   (set (map #(feature (str "pixel" %) % :categorical)   (range 784))) )
@@ -63,3 +63,31 @@
 
 (defn make-data-nursery-ready [data]
   (map #(conj (vec (:pixels %)) (:label %)) data) )
+
+;; random defs
+;; (def train-set (read-train-set 2000))
+;;(def train-set-ready (make-data-nursery-ready train-set))
+;; (def forr (make-nursery-forest train-set-ready 150 200))
+
+
+
+;; so [[0 1]] => 1 mean classification error
+(defn mean-classification-error
+  "measures l1 loss from forest evaluation"
+  [evaluation]
+  (println
+   (count evaluation))
+  (->> evaluation
+       (map (fn [[a b]] (if (= (last a) (first b)) 0 1)))
+       (avg)
+       (float)))
+
+;; if you have a forest forr this is gonna combine all the "evals" - so that all the guesses are together
+;; (def allevals (reduce (partial merge-with concat)  (map (comp :eval meta) (take 10 forr))))
+
+;; finds the most popular one
+(defn best [guesses]
+  (key (first (reverse (sort-by val (frequencies guesses))))))
+
+;; this will take the allevals thingy from above and find the 'best' guess
+;; (def scored (map #(vector (last (key %)) (best (val %))) allevals ))
