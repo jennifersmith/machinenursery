@@ -18,7 +18,6 @@
 (defn parse-test-set [reader] (map get-pixels (parse reader)))
 (defn parse-train-set [reader] (map create-tuple (parse reader)))
 
-
 (defn do-it []
   (with-open
       [test-set-rdr  (reader "data/test_head.csv")
@@ -53,5 +52,5 @@
     (vec (take n (parse-train-set train-set-rd)))))
 
 (defn read-test-set [n]
-  (with-open [train-set-rd (reader "data/train.csv")]
-    (vec (take n (parse-train-set train-set-rd)))))
+  (with-open [train-set-rd (reader "data/test.csv")]
+    (vec (take n (parse-test-set train-set-rd)))))
