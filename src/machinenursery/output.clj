@@ -1,8 +1,11 @@
 (ns machinenursery.output
-  (:import (java.awt.Color)
-           (java.awt.image.BufferedImage)
-           (java.io.File)
-           (javax.imageio.ImageIO)) )
+   )
+
+;; warrrrrrrgh wtf
+(import java.awt.Color)
+(import java.awt.image.BufferedImage)
+(import java.io.File)
+(import javax.imageio.ImageIO)
 
 (defn gray-scale [pixels]
   (map #(.getRGB (new java.awt.Color % % %)) (map #(- 255 %) pixels)))
