@@ -6,5 +6,6 @@
                  [nz.ac.waikato.cms.weka/weka-stable "3.6.6"]   
                  [org.apache.mahout/mahout-core "0.7"]
                  [org.apache.mahout/mahout-math "0.7"]]
+  :plugins [[lein-swank "1.4.4"]]
   :jvm-opts ["-Xmx2g"]
   :java-source-paths ["src/main/java"] )
