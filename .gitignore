@@ -7,5 +7,7 @@
 /checkouts
 /.lein-deps-sum
 data/*
+attempts/*
 target
 output/
+.DS_Store
