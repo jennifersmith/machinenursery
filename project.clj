@@ -1,4 +1,9 @@
 (defproject machinenursery "1.0.0-SNAPSHOT"
   :description "FIXME: write description"
-  :dependencies [[org.clojure/clojure "1.4.0"] [random-forests-clj "0.2.0"] ]
-  :jvm-opts ["-Xmx2g"])
+  :main "MahoutPlaybox"
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [random-forests-clj "0.2.0"]
+                 [org.apache.mahout/mahout-core "0.7"]
+                 [org.apache.mahout/mahout-math "0.7"]]
+  :jvm-opts ["-Xmx2g"]
+  :java-source-paths ["src/main/java"] )
