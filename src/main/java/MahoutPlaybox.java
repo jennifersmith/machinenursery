@@ -56,13 +56,13 @@ public class MahoutPlaybox {
 //
 //        byte[] bytes = byteArrayOutputStream.toByteArray();
 //
-//        FileOutputStream fos = new FileOutputStream("/Users/mneedham/github/mahout/mahout_test.data");
+//        FileOutputStream fos = new FileOutputStream("mahout_test.data");
 //        fos.write(bytes);
 //        fos.close();
 //
 //        System.out.println("bytes = " + bytes);
 //
-//        Dataset realDataSet = Dataset.read(new DataInputStream(new FileInputStream(new File("/Users/mneedham/github/mahout/mahout_test.data"))));
+//        Dataset realDataSet = Dataset.read(new DataInputStream(new FileInputStream(new File("mahout_test.data"))));
 
 //        System.out.println("realDataSet = " + realDataSet);
 
@@ -88,7 +88,7 @@ public class MahoutPlaybox {
 
 
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
-        Data data = loadData(fileAsStringArray("/Users/mneedham/github/machinenursery/data/train.csv"), descriptor);
+        Data data = loadData(fileAsStringArray("data/train.csv"), descriptor);
 
         int m = (int) Math.floor(Maths.log(2, data.getDataset().nbAttributes()) + 1);
 
@@ -101,13 +101,13 @@ public class MahoutPlaybox {
 
         DecisionForest forestM = forestBuilder.build(nbTrees);
 
-        String[] testDataValues = testFileAsStringArray("/Users/mneedham/github/machinenursery/data/test.csv");
+        String[] testDataValues = testFileAsStringArray("data/test.csv");
         Data test = DataLoader.loadData(data.getDataset(), testDataValues);
 
         System.out.println("test.size() = " + test.size());
 
         try {
-            FileWriter fstream = new FileWriter("/Users/mneedham/github/machinenursery/attempts/out-" + System.currentTimeMillis()  + ".txt");
+            FileWriter fstream = new FileWriter("attempts/out-" + System.currentTimeMillis()  + ".txt");
             PrintWriter out = new PrintWriter(fstream);
 
             for (int i = 0; i < test.size(); i++) {
@@ -211,6 +211,7 @@ public class MahoutPlaybox {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String strLine;
+            br.readLine(); // discard top one
             while ((strLine = br.readLine()) != null) {
                 list.add(strLine);
             }
@@ -231,6 +232,7 @@ public class MahoutPlaybox {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String strLine;
+            br.readLine(); // discard top one
             while ((strLine = br.readLine()) != null) {
                 list.add("-," + strLine);
             }
@@ -245,4 +247,3 @@ public class MahoutPlaybox {
 
 
 }
-
