@@ -2,17 +2,22 @@
 (:use clojure.java.io machinenursery.k-nearest-neighbours))
 
 (defn parse [reader]
-  (drop 1 (map #(string/split % #",") (line-seq reader))))
+  (drop 1
+        (map #(string/split % #",") (line-seq reader))))
 
 
-(defn get-pixels [pix] (map #( Integer/parseInt %) pix))
+(defn get-pixels [pix]
+  (map #( Integer/parseInt %) pix))
 
-(defn create-tuple [[ head & rem]] {:pixels (get-pixels rem) :label head})
+(defn create-tuple [[ head & rem]]
+  {:pixels (get-pixels rem) :label head})
 
-(defn dump-it [answers] (apply str (map println-str answers)))
+(defn dump-it [answers]
+  (apply str (map println-str answers)))
 
 (defn parse-test-set [reader] (map get-pixels (parse reader)))
 (defn parse-train-set [reader] (map create-tuple (parse reader)))
+
 
 (defn do-it []
   (with-open
@@ -42,11 +47,3 @@
                 (.write (apply str (interpose "," result)))
                 (.write "\n")
                 (.flush)))))))
-
-(defn read-train-set [n]
-  (with-open [train-set-rd (reader "data/train.csv")]
-    (vec (take n (parse-train-set train-set-rd)))))
-
-(defn read-test-set [n]
-  (with-open [train-set-rd (reader "data/test.csv")]
-    (vec (take n (parse-test-set train-set-rd)))))

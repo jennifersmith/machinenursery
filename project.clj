@@ -3,6 +3,7 @@
   :main "MahoutPlaybox"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [random-forests-clj "0.2.0"]
+                 [nz.ac.waikato.cms.weka/weka-stable "3.6.6"]   
                  [org.apache.mahout/mahout-core "0.7"]
                  [org.apache.mahout/mahout-math "0.7"]]
   :jvm-opts ["-Xmx2g"]
