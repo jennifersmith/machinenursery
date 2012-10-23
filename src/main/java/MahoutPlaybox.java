@@ -6,6 +6,9 @@ import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,25 +61,22 @@ public class MahoutPlaybox {
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
         String[] trainDataValues = fileAsStringArray("data/train.csv");
         
-        String[] part1 = new String[trainDataValues.length/2];
-        String[] part2 = new String[trainDataValues.length/2];
+        //String[] part1 = new String[trainDataValues.length/2];
+        //String[] part2 = new String[trainDataValues.length/2];
 
-        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
-        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
+        //System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
+        //System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
         
-        trainDataValues = part1;
+        //trainDataValues = part1;
         String[] testDataValues = testFileAsStringArray("data/test.csv");
 
-        testDataValues = part2;
+        //testDataValues = part2;
 
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(1);
-        potentialTrees.add(3);
-        potentialTrees.add(5);
-        potentialTrees.add(10);
-        potentialTrees.add(20);
+        //potentialTrees.add(1);
+        potentialTrees.add(100);
 
         for(int numberOfTrees : potentialTrees) {
             runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
@@ -84,10 +84,20 @@ public class MahoutPlaybox {
 
     }
 
-    private static void runIteration(int numberOfTrees, String[] trainDataValues, String[] testDataValues, String descriptor) throws DescriptorException {
+    private static void saveTree(int numberOfTrees, DecisionForest forest) throws IOException {
+      DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees.txt"));
+      forest.write(dos);
+    }
+
+    private static void runIteration(int numberOfTrees, String[] trainDataValues, String[] testDataValues, String descriptor) throws DescriptorException, IOException {
         Data data = loadData(trainDataValues,descriptor);
         Random rng = RandomUtils.getRandom();
-        DecisionForest tenForestTree = buildTree(numberOfTrees, trainDataValues, data, descriptor);
+
+        DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
+        //DecisionForest forest = buildTree(numberOfTrees, trainDataValues, data, descriptor);
+
+        saveTree(numberOfTrees, forest);
+
         Data test = DataLoader.loadData(data.getDataset(), testDataValues);
 
         try {
@@ -102,7 +112,7 @@ public class MahoutPlaybox {
                 double actualIndex = oneSample.get(0);
                 int actualLabel = data.getDataset().valueOf(0, String.valueOf((int) actualIndex));
 
-                double classify = tenForestTree.classify(test.getDataset(), rng, oneSample);
+                double classify = forest.classify(test.getDataset(), rng, oneSample);
                 int label = data.getDataset().valueOf(0, String.valueOf((int) classify));
                 
                 if(label == actualLabel) {
