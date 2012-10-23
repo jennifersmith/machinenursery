@@ -19,13 +19,13 @@
 
 (def threes  (find-me-all-the 3))
 
-(defn awesomeify [awesome] (apply map mean (map :pixels awesome)) )
+(defn averages [row] (apply map mean (map :pixels row)) )
 
 (defn jen-is-right [idiot]
   (doall (map println  (partition 28 idiot))))
 
 (def all-the-averages
-  (map vector (range 0 10) (map #(awesomeify (find-me-all-the %)) (range 0 10))))
+  (map vector (range 0 10) (map #(averages (find-me-all-the %)) (range 0 10))))
 
 (defn distance-between [fo1 fo2]
          (Math/sqrt (apply + (map #(* % %) (map - fo1 fo2)))))
@@ -33,10 +33,11 @@
 (defn foo [x]  (+ 1 2))
 
 (defn which-am-i [unranked-value]
-  (let [all-the-things
-        (map #(vector (first %1) (distance-between (second %1) unranked-value)) all-the-averages)]
-    [(ffirst (sort-by second all-the-things)) all-the-things]))
+  (let [all-the-gaps (map #(find-gap %1 unranked-value) all-the-averages)]
+    [(ffirst (sort-by second all-the-gaps)) all-the-gaps]))
 
+(defn find-gap [averages unranked-value]
+  (vector (first averages) (distance-between (second averages) unranked-value)))
 
 ;; (spit "/tmp/wow.txt" (apply str (vec (interpose "\n" (take 30000 (map ast shiz))))))
 (def shiz (map which-am-i test-data))
