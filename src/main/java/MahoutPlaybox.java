@@ -60,26 +60,34 @@ public class MahoutPlaybox {
     public static void main(String[] args) throws IOException, DescriptorException {
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
         String[] trainDataValues = fileAsStringArray("data/train.csv");
-        
-        //String[] part1 = new String[trainDataValues.length/2];
-        //String[] part2 = new String[trainDataValues.length/2];
-
-        //System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
-        //System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
-        
-        //trainDataValues = part1;
         String[] testDataValues = testFileAsStringArray("data/test.csv");
 
-        //testDataValues = part2;
+        // take 90 percent to be the test data
+        String[] part1 = new String[trainDataValues.length/10 * 9];
+        String[] part2 = new String[trainDataValues.length/10];
+
+        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
+        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
+
+        trainDataValues = part1;
+        testDataValues = part2;
 
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
         //potentialTrees.add(1);
+        potentialTrees.add(1);
+        potentialTrees.add(10);
         potentialTrees.add(100);
+        potentialTrees.add(1000);
+        potentialTrees.add(10000);
 
         for(int numberOfTrees : potentialTrees) {
+            long startTime = System.nanoTime();
             runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            System.out.println(numberOfTrees + " took " + duration + " nano seconds");
         }
 
     }
@@ -93,8 +101,8 @@ public class MahoutPlaybox {
         Data data = loadData(trainDataValues,descriptor);
         Random rng = RandomUtils.getRandom();
 
-        DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
-        //DecisionForest forest = buildTree(numberOfTrees, trainDataValues, data, descriptor);
+        //DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
+        DecisionForest forest = buildTree(numberOfTrees, trainDataValues, data, descriptor);
 
         saveTree(numberOfTrees, forest);
 
@@ -106,7 +114,7 @@ public class MahoutPlaybox {
 
             int numberCorrect = 0;
             int numberOfValues = 0;
-            
+
             for (int i = 0; i < test.size(); i++) {
                 Instance oneSample = test.get(i);
                 double actualIndex = oneSample.get(0);
@@ -114,7 +122,7 @@ public class MahoutPlaybox {
 
                 double classify = forest.classify(test.getDataset(), rng, oneSample);
                 int label = data.getDataset().valueOf(0, String.valueOf((int) classify));
-                
+
                 if(label == actualLabel) {
                     numberCorrect++;
                 }
