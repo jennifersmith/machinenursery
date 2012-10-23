@@ -1,5 +1,5 @@
 (defproject machinenursery "1.0.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "Jen and Mark try to learn machine learning"
   :main "MahoutPlaybox"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [random-forests-clj "0.2.0"]

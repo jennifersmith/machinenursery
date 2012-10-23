@@ -1,57 +1,23 @@
+package main.java;
+
 import org.apache.mahout.classifier.df.DecisionForest;
-import org.apache.mahout.classifier.df.ErrorEstimate;
 import org.apache.mahout.classifier.df.builder.DefaultTreeBuilder;
 import org.apache.mahout.classifier.df.data.*;
 import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 import java.util.List;
+import java.util.Random;
 
 public class MahoutPlaybox {
-    private static final int NUM_ATTRIBUTES = 10;
-
-    /**
-     * sum test error
-     */
-    private static double sumTestErrM;
-
-    private static double sumTestErrOne;
-
-    /**
-     * mean time to build a forest with m=log2(M)+1
-     */
-    private static long sumTimeM;
-
-    /**
-     * mean time to build a forest with m=1
-     */
-    private static long sumTimeOne;
-
-    /**
-     * mean number of nodes for all the trees grown with m=log2(M)+1
-     */
-    private static long numNodesM;
-
-    /**
-     * mean number of nodes for all the trees grown with m=1
-     */
-    private static long numNodesOne;
-
-    private static DecisionForest buildTree(int nbTrees, String[] trainDataValues, Data data, String descriptor) {
+    private static DecisionForest buildTree(int nbTrees, Data data) {
         int m = (int) Math.floor(Maths.log(2, data.getDataset().nbAttributes()) + 1);
 
-        Random rng = RandomUtils.getRandom();
-
         DefaultTreeBuilder treeBuilder = new DefaultTreeBuilder();
-        SequentialBuilder forestBuilder = new SequentialBuilder(rng, treeBuilder, data.clone());
+        SequentialBuilder forestBuilder = new SequentialBuilder(RandomUtils.getRandom(), treeBuilder, data.clone());
         treeBuilder.setM(m);
 
         return forestBuilder.build(nbTrees);
@@ -63,8 +29,8 @@ public class MahoutPlaybox {
         String[] testDataValues = testFileAsStringArray("data/test.csv");
 
         // take 90 percent to be the test data
-        String[] part1 = new String[trainDataValues.length/10 * 9];
-        String[] part2 = new String[trainDataValues.length/10];
+        String[] part1 = new String[trainDataValues.length / 10 * 9];
+        String[] part2 = new String[trainDataValues.length / 10];
 
         System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
         System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
@@ -75,14 +41,14 @@ public class MahoutPlaybox {
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        //potentialTrees.add(1);
         potentialTrees.add(1);
         potentialTrees.add(10);
         potentialTrees.add(100);
         potentialTrees.add(1000);
         potentialTrees.add(10000);
 
-        for(int numberOfTrees : potentialTrees) {
+
+        for (int numberOfTrees : potentialTrees) {
             long startTime = System.nanoTime();
             runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
             long endTime = System.nanoTime();
@@ -93,24 +59,24 @@ public class MahoutPlaybox {
     }
 
     private static void saveTree(int numberOfTrees, DecisionForest forest) throws IOException {
-      DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees.txt"));
-      forest.write(dos);
+        DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees.txt"));
+        forest.write(dos);
     }
 
     private static void runIteration(int numberOfTrees, String[] trainDataValues, String[] testDataValues, String descriptor) throws DescriptorException, IOException {
-        Data data = loadData(trainDataValues,descriptor);
+        Data data = loadData(trainDataValues, descriptor);
         Random rng = RandomUtils.getRandom();
 
         //DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
-        DecisionForest forest = buildTree(numberOfTrees, trainDataValues, data, descriptor);
+        DecisionForest forest = buildTree(numberOfTrees, data);
 
         saveTree(numberOfTrees, forest);
 
         Data test = DataLoader.loadData(data.getDataset(), testDataValues);
 
         try {
-            FileWriter fstream = new FileWriter("attempts/out-" + System.currentTimeMillis()  + ".txt");
-            PrintWriter out = new PrintWriter(fstream);
+            FileWriter fileWriter = new FileWriter("attempts/out-" + System.currentTimeMillis() + ".txt");
+            PrintWriter out = new PrintWriter(fileWriter);
 
             int numberCorrect = 0;
             int numberOfValues = 0;
@@ -123,18 +89,17 @@ public class MahoutPlaybox {
                 double classify = forest.classify(test.getDataset(), rng, oneSample);
                 int label = data.getDataset().valueOf(0, String.valueOf((int) classify));
 
-                if(label == actualLabel) {
+                if (label == actualLabel) {
                     numberCorrect++;
                 }
                 numberOfValues++;
-                //out.println(label);
                 out.println(label + ", " + actualLabel);
             }
 
-            System.out.println("Number of trees: " + numberOfTrees + " -> Number correct: " + numberCorrect + " of " + numberOfValues + " " + (numberCorrect * 1.0/numberOfValues));
+            System.out.println("Number of trees: " + numberOfTrees + " -> Number correct: " + numberCorrect + " of " + numberOfValues + " " + (numberCorrect * 1.0 / numberOfValues));
 
             out.close();
-        } catch (Exception e) {//Catch exception if any
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Error: " + e.getMessage());
         }
@@ -146,59 +111,6 @@ public class MahoutPlaybox {
         return DataLoader.loadData(dataset, sData);
     }
 
-    private static void runIteration(Random rng, Data data, int m, int nbtrees) {
-        Data train = data.clone();
-
-        Data test = train.rsplit(rng, (int) (data.size() * 0.1));
-
-        DefaultTreeBuilder treeBuilder = new DefaultTreeBuilder();
-        SequentialBuilder forestBuilder = new SequentialBuilder(rng, treeBuilder, train);
-        treeBuilder.setM(m);
-
-        long time = System.currentTimeMillis();
-        System.out.println("Growing a forest with m=" + m);
-        DecisionForest forestM = forestBuilder.build(nbtrees);
-        sumTimeM += System.currentTimeMillis() - time;
-        numNodesM += forestM.nbNodes();
-
-        // grow a forest with m=1
-        treeBuilder.setM(1);
-
-        time = System.currentTimeMillis();
-        System.out.println("Growing a forest with m=1");
-        DecisionForest forestOne = forestBuilder.build(nbtrees);
-        sumTimeOne += System.currentTimeMillis() - time;
-        numNodesOne += forestOne.nbNodes();
-
-        // compute the test set error (Selection Error), and mean tree error (One Tree Error),
-        double[] testLabels = test.extractLabels();
-        double[] predictions = new double[test.size()];
-
-        forestM.classify(test, predictions);
-
-        double[] sumPredictions = new double[test.size()];
-        Arrays.fill(sumPredictions, 0.0);
-        for (int i = 0; i < predictions.length; i++) {
-            sumPredictions[i] += predictions[i];
-        }
-        sumTestErrM += ErrorEstimate.errorRate(testLabels, sumPredictions);
-
-        forestOne.classify(test, predictions);
-        Arrays.fill(sumPredictions, 0.0);
-        for (int i = 0; i < predictions.length; i++) {
-            sumPredictions[i] += predictions[i];
-        }
-        sumTestErrOne += ErrorEstimate.errorRate(testLabels, sumPredictions);
-
-//        DecisionForest tree = forestBuilder.build(5);
-//
-//        double[] predictions = new double[test.size()];
-//        tree.classify(test, predictions);
-//
-//        for (double prediction : predictions) {
-//            System.out.println("prediction = " + prediction);
-//        }
-    }
 
     private static String[] fileAsStringArray(String file) {
         ArrayList<String> list = new ArrayList<String>();
