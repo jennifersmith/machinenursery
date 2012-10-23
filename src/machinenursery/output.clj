@@ -36,3 +36,8 @@
 
 ;;(def train-set (read-train-set 1000))
 ;;(apply save-image "data/eek.png" train-set )
+
+;; this is insane
+(defn compute-histogram [{:keys [pixels]}]
+  (let [grouped (group-by identity pixels)]
+    (map (fnil count []) (map grouped (range 256)))))
