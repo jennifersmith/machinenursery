@@ -1,7 +1,11 @@
-(ns machinenursery.output
-  (:import (java.awt.Color)
-           (java.io.File)
-           (javax.imageio.ImageIO)) )
+(ns machinenursery.output)
+
+;; warrrrrrrgh wtf
+
+(import java.awt.Color)
+(import java.awt.image.BufferedImage)
+(import java.io.File)
+(import javax.imageio.ImageIO)
 
 (defn gray-scale [pixels]
   (map #(.getRGB (new java.awt.Color % % %)) (map #(- 255 %) pixels)))00
@@ -36,8 +40,3 @@
 
 ;;(def train-set (read-train-set 1000))
 ;;(apply save-image "data/eek.png" train-set )
-
-;; this is insane
-(defn compute-histogram [{:keys [pixels]}]
-  (let [grouped (group-by identity pixels)]
-    (map (fnil count []) (map grouped (range 256)))))

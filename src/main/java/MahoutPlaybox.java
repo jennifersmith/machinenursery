@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Random;
 
 public class MahoutPlaybox {
-    private static DecisionForest buildTree(int nbTrees, Data data) {
+    private static DecisionForest buildForest(int numberOfTrees, Data data) {
         int m = (int) Math.floor(Maths.log(2, data.getDataset().nbAttributes()) + 1);
 
         DefaultTreeBuilder treeBuilder = new DefaultTreeBuilder();
         SequentialBuilder forestBuilder = new SequentialBuilder(RandomUtils.getRandom(), treeBuilder, data.clone());
         treeBuilder.setM(m);
 
-        return forestBuilder.build(nbTrees);
+        return forestBuilder.build(numberOfTrees);
     }
 
     public static void main(String[] args) throws IOException, DescriptorException {
@@ -29,23 +29,23 @@ public class MahoutPlaybox {
         String[] testDataValues = testFileAsStringArray("data/test.csv");
 
         // take 90 percent to be the test data
-        String[] part1 = new String[trainDataValues.length / 10 * 9];
-        String[] part2 = new String[trainDataValues.length / 10];
-
-        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
-        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
-
-        trainDataValues = part1;
-        testDataValues = part2;
+//        String[] part1 = new String[trainDataValues.length / 10 * 9];
+//        String[] part2 = new String[trainDataValues.length / 10];
+//
+//        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
+//        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
+//
+//        trainDataValues = part1;
+//        testDataValues = part2;
 
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(1);
-        potentialTrees.add(10);
-        potentialTrees.add(100);
-        potentialTrees.add(1000);
-        potentialTrees.add(10000);
+//        potentialTrees.add(1);
+//        potentialTrees.add(10);
+        potentialTrees.add(200);
+//        potentialTrees.add(1000);
+//        potentialTrees.add(10000);
 
 
         for (int numberOfTrees : potentialTrees) {
@@ -68,7 +68,7 @@ public class MahoutPlaybox {
         Random rng = RandomUtils.getRandom();
 
         //DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
-        DecisionForest forest = buildTree(numberOfTrees, data);
+        DecisionForest forest = buildForest(numberOfTrees, data);
 
         saveTree(numberOfTrees, forest);
 

@@ -36,6 +36,19 @@
   (let [all-the-gaps (map #(find-gap %1 unranked-value) all-the-averages)]
     [(ffirst (sort-by second all-the-gaps)) all-the-gaps]))
 
+(defn which-am-i [unranked-value]
+  (let [all-the-gaps (map #(find-gap %1 unranked-value) all-the-averages)
+        top-two (take 2 (sort-by second all-the-gaps))]
+    [(ffirst (sort-by second all-the-gaps)) top-two all-the-gaps]))
+
+(defn which-am-i [unranked-value]
+  (let [all-the-gaps (map #(find-gap %1 unranked-value) all-the-averages)
+        top-two (take 2 (sort-by second all-the-gaps))
+        difference-between-top-two (Math/abs (apply - (map second top-two)))
+        very-close (< difference-between-top-two 50)
+        best-one (if very-close (ffirst (shuffle top-two)) (ffirst top-two))]
+    [best-one top-two  all-the-gaps]))
+
 (defn find-gap [averages unranked-value]
   (vector (first averages) (distance-between (second averages) unranked-value)))
 
