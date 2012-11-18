@@ -67,7 +67,7 @@ public class MahoutPlaybox {
         Data data = loadData(trainDataValues, descriptor);
         Random rng = RandomUtils.getRandom();
 
-        //DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
+//        DecisionForest forest = DecisionForest.load(new Configuration(), new Path("saved-trees/" + numberOfTrees + "-trees.txt"));
         DecisionForest forest = buildForest(numberOfTrees, data);
 
         saveTree(numberOfTrees, forest);
