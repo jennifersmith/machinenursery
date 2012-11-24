@@ -15,7 +15,7 @@
                  [org.slf4j/slf4j-jdk14 "1.6.6"]
                  [com.google.guava/guava "13.0.1"]
                  [org.encog/encog-core "3.1.0"]
-                 [cc.mallet/mallet "2.0.7-RC2"]]
+                 [cc.mallet/mallet "2.0.7-RC2"]
                  [criterium "0.3.0"]]
 
   :plugins [[lein-swank "1.4.4"]]
