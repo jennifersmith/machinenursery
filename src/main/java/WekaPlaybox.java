@@ -1,16 +1,14 @@
 package main.java;
 
+import weka.classifiers.Classifier;
+import weka.classifiers.meta.MultiBoostAB;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
+import java.io.*;
 import java.util.ArrayList;
 
 
@@ -24,36 +22,54 @@ public class WekaPlaybox {
         Instances instances = new Instances("digit recognizer", attributes, 40000);
         instances.setClassIndex(0);
 
-        String[] trainingDataValues = fileAsStringArray("data/train_head.csv");
+        String[] trainingDataValues = fileAsStringArray("data/train.csv");
 
         for (String trainingDataValue : trainingDataValues) {
             Instance instance = createInstance(trainingDataValue);
             instances.add(instance);
         }
 
+        Classifier classifier = buildClassifier(instances);
 
-        RandomForest randomForest = new RandomForest();
-        randomForest.setNumTrees(500);
-        randomForest.buildClassifier(instances);
+        String[] testDataValues = fileAsStringArray("data/test.csv");
 
-        String[] testDataValues = fileAsStringArray("data/train_tail.csv");
-
-        int total = testDataValues.length;
-        int numberCorrect = 0;
+//        int total = testDataValues.length;
+//        int numberCorrect = 0;
+        FileWriter fileWriter = new FileWriter("weka-attempts/out-" + System.currentTimeMillis() + ".txt");
+        PrintWriter out = new PrintWriter(fileWriter);
         for (String testDataValue : testDataValues) {
-            Iteration iterate = iterate(testDataValue, randomForest, instances);
-            if(iterate.correct()) {
-                numberCorrect++;
-            }
-//            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
+            Iteration iterate = iterate(testDataValue, classifier, instances);
+//            if(iterate.correct()) {
+//                numberCorrect++;
+//            }
+            out.println((int) iterate.getPrediction());
+            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
         }
-        System.out.println("Number correct: " + numberCorrect);
-        System.out.println("Total: " + total);
-        System.out.println("Accuracy: " + new BigDecimal(numberCorrect).divide(new BigDecimal(total)).doubleValue());
+        out.close();
+//        System.out.println("Number correct: " + numberCorrect);
+//        System.out.println("Total: " + total);
+//        System.out.println("Accuracy: " + new BigDecimal(numberCorrect).divide(new BigDecimal(total)).doubleValue());
 
         long end = System.currentTimeMillis();
 
         System.out.println("time: " + (end - start));
+    }
+
+    private static Classifier buildClassifier(Instances instances) throws Exception {
+        RandomForest randomForest = new RandomForest();
+        randomForest.setNumTrees(200);
+//        randomForest.buildClassifier(instances);
+//        return randomForest;
+
+        MultiBoostAB multiBoostAB = new MultiBoostAB();
+        multiBoostAB.setClassifier(randomForest);
+        multiBoostAB.buildClassifier(instances);
+        return multiBoostAB;
+
+//        AdaBoostM1 adaBoostM1 = new AdaBoostM1();
+//        adaBoostM1.setClassifier(randomForest);
+//        adaBoostM1.buildClassifier(instances);
+//        return adaBoostM1;
     }
 
     private static class Iteration {
@@ -79,13 +95,15 @@ public class WekaPlaybox {
         }
     }
 
-    private static Iteration iterate(String testDataValue, RandomForest randomForest, Instances instances) throws Exception {
-        double prediction = randomForest.classifyInstance(createInstanceToPredict(testDataValue, instances));
+    private static Iteration iterate(String testDataValue, Classifier classifier, Instances instances) throws Exception {
+        Instance predictMe = createTestDataBasedInstanceToPredict(testDataValue, instances);
+//        Instance predictMe = createTrainingDataBasedInstanceToPredict(testDataValue, instances);
+        double prediction = classifier.classifyInstance(predictMe);
 
         return new Iteration(new Double(testDataValue.split(",")[0]), prediction);
     }
 
-    private static Instance createInstanceToPredict(String testDataValue, Instances instances) {
+    private static Instance createTrainingDataBasedInstanceToPredict(String testDataValue, Instances instances) {
         String[] columns = testDataValue.split(",");
         Instance instance = new Instance(785);
 
@@ -96,6 +114,20 @@ public class WekaPlaybox {
         instance.setDataset(instances);
         return instance;
     }
+
+    private static Instance createTestDataBasedInstanceToPredict(String testDataValue, Instances instances) {
+        String[] columns = testDataValue.split(",");
+        Instance instance = new Instance(785);
+
+        for (int i = 0; i < columns.length; i++) {
+            instance.setValue(new Attribute("pixel" + i, i+1), new Double(columns[i]));
+        }
+
+        instance.setDataset(instances);
+        return instance;
+    }
+
+
 
     private static Instance createInstance(String trainingDataValue) {
         String[] columns = trainingDataValue.split(",");
@@ -161,9 +193,9 @@ public class WekaPlaybox {
 //        randomForest.buildClassifier(instances);
 //
 //
-//        System.out.println("prediction = " + randomForest.classifyInstance(createInstanceToPredict(0, 98, 0, instances)));
-//        System.out.println("prediction = " + randomForest.classifyInstance(createInstanceToPredict(99, 0, 0, instances)));
-//        System.out.println("prediction = " + randomForest.classifyInstance(createInstanceToPredict(0, 0, 99, instances)));
+//        System.out.println("prediction = " + randomForest.classifyInstance(createTrainingDataBasedInstanceToPredict(0, 98, 0, instances)));
+//        System.out.println("prediction = " + randomForest.classifyInstance(createTrainingDataBasedInstanceToPredict(99, 0, 0, instances)));
+//        System.out.println("prediction = " + randomForest.classifyInstance(createTrainingDataBasedInstanceToPredict(0, 0, 99, instances)));
 //    }
 
     private static Attribute digit() {
