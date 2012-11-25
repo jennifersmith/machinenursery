@@ -12,31 +12,75 @@ import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.cross.CrossValidationKFold;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
+import java.math.BigDecimal;
+
 
 public class ManualEncogPlaybox {
-    public final static double MAX_ERROR = 0.70;
+    public final static double MAX_ERROR = 0.10;
 
     public static void main(String[] args) {
         BasicNetwork network = createNetwork();
 
+        String[] trainingData = KaggleInputReader.fileAsStringArray("data/train_head.csv");
+
         final MLDataSet training = new BasicMLDataSet();
-        training.add(new BasicMLDataPair(new BasicMLData(new double[] { 99, 0, 0 }), new BasicMLData(new double[] {1,0,0,0,0,0,0,0,0,0}))); // 0
-        training.add(new BasicMLDataPair(new BasicMLData(new double[] { 0, 99, 0 }), new BasicMLData(new double[] {0,1,0,0,0,0,0,0,0,0}))); // 1
-        training.add(new BasicMLDataPair(new BasicMLData(new double[] { 0, 0, 99 }), new BasicMLData(new double[] {0,0,1,0,0,0,0,0,0,0}))); // 2
+        for (String row : trainingData) {
+            double[] actualValue = asOnePerClassCoding(new Double(row.split(",")[0]));
+            double[] inputs = inputs(row.split(","));
+            training.add(new BasicMLDataPair(new BasicMLData(inputs), new BasicMLData(actualValue)));
+        }
 
         train(network, training);
 
-        int winningOutput = prediction(network, new double[]{0, 0, 99});
+        String[] testData = KaggleInputReader.fileAsStringArray("data/train_tail.csv");
 
-        System.out.println("prediction: " + winningOutput);
+        int total = testData.length;
+        int correct = 0;
+        for (String row : testData) {
+            Iteration iterate = iterate(row, network);
 
-        System.out.println("network = " + network);
+            if(iterate.correct()) {
+                correct++;
+            }
+
+            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
+        }
+
+        System.out.println("accuracy: " + new BigDecimal(correct).divide(new BigDecimal(total)));
+    }
+
+    private static Iteration iterate(String testData, BasicNetwork network) {
+        double[] inputs = inputs(testData.split(","));
+        int prediction = prediction(network, inputs);
+        int actual = new Integer(testData.split(",")[0]);
+        return new Iteration(new Double(actual), prediction);
+    }
+
+    private static double[] inputs(String[] columns) {
+        double[] inputs = new double[columns.length-1];
+        for (int i = 1; i < columns.length; i++) {
+            inputs[i-1] = new Double(columns[i]);
+        }
+
+        return inputs;
+    }
+
+    private static double[] asOnePerClassCoding(Double label) {
+        double[] classes = new double[] { 0,0,0,0,0,0,0,0,0,0 };
+        for (int i = 0; i < 10; i++) {
+            if(label.intValue() == i) {
+                classes[label.intValue()] = 1;
+            }
+
+        }
+        return classes;
     }
 
     private static int prediction(BasicNetwork network, double[] input) {
         MLData output = network.compute(new BasicMLData(input));
 
         double winningOutput = Double.NEGATIVE_INFINITY;
+        int winningClass = Integer.MIN_VALUE;
 
         for(int i=0;i<output.size();i++)
         {
@@ -44,10 +88,11 @@ public class ManualEncogPlaybox {
             double thisOutput = output.getData(i);
             if( thisOutput>winningOutput)
             {
-                winningOutput = i;
+                winningOutput = thisOutput;
+                winningClass = i;
             }
         }
-        return (int)winningOutput;
+        return winningClass;
     }
 
     public static void train(BasicNetwork network, MLDataSet training) {
@@ -68,46 +113,10 @@ public class ManualEncogPlaybox {
     private static BasicNetwork createNetwork() {
         BasicNetwork network = new BasicNetwork();
         network.addLayer(new BasicLayer(3));
-        network.addLayer(new BasicLayer(60));
+        network.addLayer(new BasicLayer(10));
         network.addLayer(new BasicLayer(10));
         network.getStructure().finalizeStructure();
         network.reset();
         return network;
     }
-
-//    public void predict(BasicNetwork network) {
-//        NumberFormat f = NumberFormat.getNumberInstance();
-//        f.setMaximumFractionDigits(4);
-//        f.setMinimumFractionDigits(4);
-//
-//        System.out.println("Year\tActual\tPredict\tClosed Loop Predict");
-//
-//        for (int year = EVALUATE_START; year < EVALUATE_END; year++) {
-//            // calculate based on actual data
-//            MLData input = new BasicMLData(WINDOW_SIZE);
-//            for (int i = 0; i < input.size(); i++) {
-//                input.setData(i, this.normalizedSunspots[(year - WINDOW_SIZE)
-//                        + i]);
-//            }
-//            MLData output = network.compute(input);
-//            double prediction = output.getData(0);
-//            this.closedLoopSunspots[year] = prediction;
-//
-//            // calculate "closed loop", based on predicted data
-//            for (int i = 0; i < input.size(); i++) {
-//                input.setData(i, this.closedLoopSunspots[(year - WINDOW_SIZE)
-//                        + i]);
-//            }
-//            output = network.compute(input);
-//            double closedLoopPrediction = output.getData(0);
-//
-//            // display
-//            System.out.println((STARTING_YEAR + year) + "\t"
-//                    + f.format(this.normalizedSunspots[year]) + "\t"
-//                    + f.format(prediction) + "\t"
-//                    + f.format(closedLoopPrediction));
-//
-//        }
-//    }
-
 }

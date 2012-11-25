@@ -72,28 +72,6 @@ public class WekaPlaybox {
 //        return adaBoostM1;
     }
 
-    private static class Iteration {
-
-        private double actual;
-        private double prediction;
-
-        public Iteration(double actual, double prediction) {
-            this.actual = actual;
-            this.prediction = prediction;
-        }
-
-        public boolean correct() {
-            return actual == prediction;
-        }
-
-        public double getActual() {
-            return actual;
-        }
-
-        public double getPrediction() {
-            return prediction;
-        }
-    }
 
     private static Iteration iterate(String testDataValue, Classifier classifier, Instances instances) throws Exception {
         Instance predictMe = createTestDataBasedInstanceToPredict(testDataValue, instances);
