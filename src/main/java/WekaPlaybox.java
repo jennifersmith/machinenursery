@@ -8,8 +8,8 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 
 public class WekaPlaybox {
@@ -22,7 +22,7 @@ public class WekaPlaybox {
         Instances instances = new Instances("digit recognizer", attributes, 40000);
         instances.setClassIndex(0);
 
-        String[] trainingDataValues = fileAsStringArray("data/train.csv");
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv");
 
         for (String trainingDataValue : trainingDataValues) {
             Instance instance = createInstance(trainingDataValue);
@@ -31,7 +31,7 @@ public class WekaPlaybox {
 
         Classifier classifier = buildClassifier(instances);
 
-        String[] testDataValues = fileAsStringArray("data/test.csv");
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/test.csv");
 
 //        int total = testDataValues.length;
 //        int numberCorrect = 0;
@@ -151,27 +151,6 @@ public class WekaPlaybox {
         }
 
         return attributes;
-    }
-
-    public static String[] fileAsStringArray(String file) {
-        ArrayList<String> list = new ArrayList<String>();
-
-        try {
-            DataInputStream in = new DataInputStream(new FileInputStream(file));
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-            String strLine;
-            br.readLine(); // discard top one
-            while ((strLine = br.readLine()) != null) {
-                list.add(strLine);
-            }
-
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Error: " + e.getMessage());
-        }
-        return list.toArray(new String[list.size()]);
     }
 
 

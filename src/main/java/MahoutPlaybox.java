@@ -28,7 +28,7 @@ public class MahoutPlaybox {
     }
     public static void main(String[] args) throws IOException, DescriptorException {
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
-        String[] trainDataValues = fileAsStringArray("data/train.csv");
+        String[] trainDataValues = KaggleInputReader.fileAsStringArray("data/train.csv");
         String[] testDataValues = testFileAsStringArray("data/test.csv");
 
         // take 90 percent to be the test data
@@ -112,28 +112,6 @@ public class MahoutPlaybox {
     private static Data loadData(String[] sData, String descriptor) throws DescriptorException {
         Dataset dataset = DataLoader.generateDataset(descriptor, false, sData);
         return DataLoader.loadData(dataset, sData);
-    }
-
-
-    public static String[] fileAsStringArray(String file) {
-        ArrayList<String> list = new ArrayList<String>();
-
-        try {
-            DataInputStream in = new DataInputStream(new FileInputStream(file));
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-            String strLine;
-            br.readLine(); // discard top one
-            while ((strLine = br.readLine()) != null) {
-                list.add(strLine);
-            }
-
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Error: " + e.getMessage());
-        }
-        return list.toArray(new String[list.size()]);
     }
 
     private static String[] testFileAsStringArray(String file) {
