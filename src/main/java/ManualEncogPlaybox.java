@@ -79,6 +79,9 @@ public class ManualEncogPlaybox {
     private static int prediction(BasicNetwork network, double[] input) {
         MLData output = network.compute(new BasicMLData(input));
 
+        prettyPrint(input, "Input");
+        prettyPrint(output.getData(), "Output");
+
         double winningOutput = Double.NEGATIVE_INFINITY;
         int winningClass = Integer.MIN_VALUE;
 
@@ -93,6 +96,14 @@ public class ManualEncogPlaybox {
             }
         }
         return winningClass;
+    }
+
+    private static void prettyPrint(double[] input, String label) {
+        System.out.print(label + ": ");
+        for (double v : input) {
+            System.out.print(v + " ");
+        }
+        System.out.println();
     }
 
     public static void train(BasicNetwork network, MLDataSet training) {
