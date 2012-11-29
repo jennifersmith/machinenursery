@@ -19,6 +19,10 @@ public class ManualEncogPlaybox {
     public final static double MAX_ERROR = 0.10;
 
     public static void main(String[] args) {
+        // Build a random network
+        // Train the network with test data
+        // Predict a new test data set
+
         BasicNetwork network = createNetwork();
 
         String[] trainingData = KaggleInputReader.fileAsStringArray("data/train_head.csv");
@@ -27,6 +31,8 @@ public class ManualEncogPlaybox {
         for (String row : trainingData) {
             double[] actualValue = asOnePerClassCoding(new Double(row.split(",")[0]));
             double[] inputs = inputs(row.split(","));
+            prettyPrint(inputs, "input");
+            prettyPrint(actualValue, "actual");
             training.add(new BasicMLDataPair(new BasicMLData(inputs), new BasicMLData(actualValue)));
         }
 
