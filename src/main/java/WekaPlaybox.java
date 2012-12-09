@@ -1,7 +1,9 @@
 package main.java;
 
+import weka.associations.gsp.Element;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.MultiBoostAB;
+import weka.classifiers.pmml.consumer.NeuralNetwork;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -10,7 +12,7 @@ import weka.core.Instances;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-
+import java.math.BigDecimal;
 
 public class WekaPlaybox {
 
@@ -19,10 +21,10 @@ public class WekaPlaybox {
 
         FastVector attributes = attributes();
 
-        Instances instances = new Instances("digit recognizer", attributes, 40000);
+        Instances instances = new Instances("digit recognizer", attributes, 1000);
         instances.setClassIndex(0);
 
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv");
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv");
 
         for (String trainingDataValue : trainingDataValues) {
             Instance instance = createInstance(trainingDataValue);
@@ -31,24 +33,24 @@ public class WekaPlaybox {
 
         Classifier classifier = buildClassifier(instances);
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/test.csv");
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv");
 
-//        int total = testDataValues.length;
-//        int numberCorrect = 0;
+        int total = testDataValues.length;
+        int numberCorrect = 0;
         FileWriter fileWriter = new FileWriter("weka-attempts/out-" + System.currentTimeMillis() + ".txt");
         PrintWriter out = new PrintWriter(fileWriter);
         for (String testDataValue : testDataValues) {
             Iteration iterate = iterate(testDataValue, classifier, instances);
-//            if(iterate.correct()) {
-//                numberCorrect++;
-//            }
+            if(iterate.correct()) {
+                numberCorrect++;
+            }
             out.println((int) iterate.getPrediction());
-            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
+//            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
         }
         out.close();
-//        System.out.println("Number correct: " + numberCorrect);
-//        System.out.println("Total: " + total);
-//        System.out.println("Accuracy: " + new BigDecimal(numberCorrect).divide(new BigDecimal(total)).doubleValue());
+        System.out.println("Number correct: " + numberCorrect);
+        System.out.println("Total: " + total);
+        System.out.println("Accuracy: " + new BigDecimal(numberCorrect).divide(new BigDecimal(total), BigDecimal.ROUND_HALF_DOWN, 3).doubleValue());
 
         long end = System.currentTimeMillis();
 
@@ -57,7 +59,7 @@ public class WekaPlaybox {
 
     private static Classifier buildClassifier(Instances instances) throws Exception {
         RandomForest randomForest = new RandomForest();
-        randomForest.setNumTrees(200);
+        randomForest.setNumTrees(2);
 //        randomForest.buildClassifier(instances);
 //        return randomForest;
 
@@ -74,8 +76,8 @@ public class WekaPlaybox {
 
 
     private static Iteration iterate(String testDataValue, Classifier classifier, Instances instances) throws Exception {
-        Instance predictMe = createTestDataBasedInstanceToPredict(testDataValue, instances);
-//        Instance predictMe = createTrainingDataBasedInstanceToPredict(testDataValue, instances);
+//        Instance predictMe = createTestDataBasedInstanceToPredict(testDataValue, instances);
+        Instance predictMe = createTrainingDataBasedInstanceToPredict(testDataValue, instances);
         double prediction = classifier.classifyInstance(predictMe);
 
         return new Iteration(new Double(testDataValue.split(",")[0]), prediction);

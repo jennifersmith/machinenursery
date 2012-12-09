@@ -6,13 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mneedham
- * Date: 25/11/2012
- * Time: 20:22
- * To change this template use File | Settings | File Templates.
- */
+
 public class KaggleInputReader {
     public static String[] fileAsStringArray(String file) {
         ArrayList<String> list = new ArrayList<String>();
