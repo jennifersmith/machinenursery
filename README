@@ -1,13 +1,9 @@
-# machinenursery
+# machinenursery - Jen and Mark try to work out how to do machine learning
 
-FIXME: write description
+JAVA_OPTS="-Xmx1024m" java -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.WekaNeuralNetworks
 
-## Usage
 
-FIXME: write
 
-## License
-
-Copyright (C) 2012 FIXME
+Copyright (C) 2012 machinenursery
 
 Distributed under the Eclipse Public License, the same as Clojure.
