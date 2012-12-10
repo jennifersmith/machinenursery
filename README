@@ -1,6 +1,11 @@
 # machinenursery - Jen and Mark try to work out how to do machine learning
 
+To train up a Weka neural networks classifier:
+
+lein uberjar
 JAVA_OPTS="-Xmx1024m" java -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.WekaNeuralNetworks
+
+It will write the serialized version into weka-attempts/neural-networks so make sure you have that folder or it will blow up
 
 
 
