@@ -15,7 +15,7 @@ public class WekaNeuralNetworks {
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv");
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv");
         FastVector attributes = attributes();
 
         Instances instances = new Instances("digit recognizer", attributes, 1000);
