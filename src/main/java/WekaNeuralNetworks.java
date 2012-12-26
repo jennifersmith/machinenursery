@@ -8,13 +8,14 @@ import weka.core.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public class WekaNeuralNetworks {
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
         int numberToRead = 1000;
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead);
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, new ArrayList<Integer>());
         FastVector attributes = attributes();
 
         Instances instances = new Instances("digit recognizer", attributes, numberToRead);
@@ -27,7 +28,7 @@ public class WekaNeuralNetworks {
 
         Classifier multilayerPerceptron = buildClassifier(instances, "weka-attempts/neural-networks", "17");
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000);
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, new ArrayList<Integer>());
 
         int total = testDataValues.length;
         int numberCorrect = 0;

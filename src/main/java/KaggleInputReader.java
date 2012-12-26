@@ -5,10 +5,11 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class KaggleInputReader {
-    public static String[] fileAsStringArray(String file, int numberToRead) {
+    public static String[] fileAsStringArray(String file, int numberToRead, List<Integer> pixelsToIgnore) {
         ArrayList<String> list = new ArrayList<String>();
 
         int readSoFar = 0;
@@ -19,7 +20,11 @@ public class KaggleInputReader {
             String strLine;
             br.readLine(); // discard top one
             while ((strLine = br.readLine()) != null && numberToRead > readSoFar) {
-                list.add(strLine);
+
+                if(!pixelsToIgnore.contains(readSoFar)) {
+                    list.add(strLine);
+                }
+
                 readSoFar++;
             }
 

@@ -1,11 +1,8 @@
 package main.java;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.df.DecisionForest;
 import org.apache.mahout.classifier.df.builder.DefaultTreeBuilder;
 import org.apache.mahout.classifier.df.data.*;
-import org.apache.mahout.classifier.df.node.Node;
 import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
@@ -31,24 +28,30 @@ public class MahoutPlaybox {
 
 
     public static void main(String[] args) throws IOException, DescriptorException {
+        List<Integer> pixelsToIgnore = new ArrayList<Integer>();
+        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000, new ArrayList<Integer>())) {
+            pixelsToIgnore.add(Integer.parseInt(value));
+        }
+
+
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
-        String[] trainDataValues = fileAsStringArray("data/train.csv", 42000);
-        String[] testDataValues = testFileAsStringArray("data/test.csv");
+        String[] trainDataValues = fileAsStringArray("data/train.csv", 42000, pixelsToIgnore);
+        String[] testDataValues = testFileAsStringArray("data/test.csv", pixelsToIgnore);
 
         // take 90 percent to be the test data
-//        String[] part1 = new String[trainDataValues.length / 10 * 9];
-//        String[] part2 = new String[trainDataValues.length / 10];
-//
-//        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
-//        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
-//
-//        trainDataValues = part1;
-//        testDataValues = part2;
+        String[] part1 = new String[trainDataValues.length / 10 * 9];
+        String[] part2 = new String[trainDataValues.length / 10];
+
+        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
+        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
+
+        trainDataValues = part1;
+        testDataValues = part2;
 
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(10);
+        potentialTrees.add(100);
 
 
         for (int numberOfTrees : potentialTrees) {
@@ -62,7 +65,7 @@ public class MahoutPlaybox {
     }
 
     private static void saveTree(int numberOfTrees, DecisionForest forest) throws IOException {
-        DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees-" + System.currentTimeMillis() + "-" + RandomUtils.getRandom().nextInt() +".txt"));
+        DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees-" + System.currentTimeMillis() + "-" + RandomUtils.getRandom().nextInt() + ".txt"));
         forest.write(dos);
     }
 
@@ -77,7 +80,7 @@ public class MahoutPlaybox {
 //
 //        int filesUsed = 0;
 //        for (File file : files) {
-//            if(file.getName().startsWith("10-trees")) {
+//            if(file.getName().startsWith("100-trees") || file.getName().startsWith("50-trees")) {
 //                filesUsed++;
 //                try {
 //                    MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(file.getPath()));
@@ -89,7 +92,7 @@ public class MahoutPlaybox {
 //            }
 //        }
 //
-//        numberOfTrees = filesUsed * 10;
+//        numberOfTrees = filesUsed;
 //
 //        MultiDecisionForest forest = new MultiDecisionForest(trees);
 
@@ -137,9 +140,10 @@ public class MahoutPlaybox {
         return DataLoader.loadData(dataset, sData);
     }
 
-    private static String[] testFileAsStringArray(String file) {
+    private static String[] testFileAsStringArray(String file, List<Integer> pixelsToIgnore) {
         ArrayList<String> list = new ArrayList<String>();
 
+        int readSoFar = 0;
         try {
             DataInputStream in = new DataInputStream(new FileInputStream(file));
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -147,7 +151,12 @@ public class MahoutPlaybox {
             String strLine;
             br.readLine(); // discard top one
             while ((strLine = br.readLine()) != null) {
-                list.add("-," + strLine);
+
+                if (!pixelsToIgnore.contains(readSoFar)) {
+                    list.add("-," + strLine);
+                }
+
+                readSoFar++;
             }
 
             in.close();
