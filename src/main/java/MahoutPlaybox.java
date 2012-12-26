@@ -32,7 +32,7 @@ public class MahoutPlaybox {
 
     public static void main(String[] args) throws IOException, DescriptorException {
         List<Integer> pixelsToIgnore = new ArrayList<Integer>();
-        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000, new ArrayList<Integer>())) {
+        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000)) {
             pixelsToIgnore.add(Integer.parseInt(value));
         }
 
@@ -56,7 +56,7 @@ public class MahoutPlaybox {
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(10);
+        potentialTrees.add(100);
 
 
         for (int numberOfTrees : potentialTrees) {

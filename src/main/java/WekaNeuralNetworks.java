@@ -9,13 +9,21 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+
+import static main.java.KaggleInputReader.fileAsStringArray;
 
 public class WekaNeuralNetworks {
     public static void main(String[] args) throws Exception {
+        List<Integer> pixelsToIgnore = new ArrayList<Integer>();
+        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 100, new ArrayList<Integer>())) {
+            pixelsToIgnore.add(Integer.parseInt(value));
+        }
+
         long start = System.currentTimeMillis();
 
         int numberToRead = 1000;
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, new ArrayList<Integer>());
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, pixelsToIgnore);
         FastVector attributes = attributes();
 
         Instances instances = new Instances("digit recognizer", attributes, numberToRead);
@@ -96,7 +104,7 @@ public class WekaNeuralNetworks {
     private static Instance createInstance(String trainingDataValue) {
         String[] columns = trainingDataValue.split(",");
 
-        Instance instance = new Instance(785);
+        Instance instance = new Instance(columns.length);
         instance.setValue(digit(), columns[0]);
 
         for (int i = 1; i < columns.length; i++) {
