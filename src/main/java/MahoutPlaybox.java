@@ -33,17 +33,17 @@ public class MahoutPlaybox {
     public static void main(String[] args) throws IOException, DescriptorException {
         String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
         String[] trainDataValues = fileAsStringArray("data/train.csv", 42000);
-        String[] testDataValues = fileAsStringArray("data/train_tail.csv", 1000);
+        String[] testDataValues = testFileAsStringArray("data/test.csv");
 
         // take 90 percent to be the test data
-        String[] part1 = new String[trainDataValues.length / 10 * 9];
-        String[] part2 = new String[trainDataValues.length / 10];
-
-        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
-        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
-
-        trainDataValues = part1;
-        testDataValues = part2;
+//        String[] part1 = new String[trainDataValues.length / 10 * 9];
+//        String[] part2 = new String[trainDataValues.length / 10];
+//
+//        System.arraycopy(trainDataValues, 0, part1, 0, part1.length);
+//        System.arraycopy(trainDataValues, part1.length, part2, 0, part2.length);
+//
+//        trainDataValues = part1;
+//        testDataValues = part2;
 
         //===================WOOOP
 
@@ -69,16 +69,27 @@ public class MahoutPlaybox {
     public static void runIteration(int numberOfTrees, String[] trainDataValues, String[] testDataValues, String descriptor) throws DescriptorException, IOException {
         Data data = loadData(trainDataValues, descriptor);
         Random rng = RandomUtils.getRandom();
+
+//        List<Node> trees = new ArrayList<Node>();
 //
-//        MultiDecisionForest forest1 = MultiDecisionForest.load(new Configuration(), new Path("saved-trees/10-trees-1356520882285.txt"));
-//        MultiDecisionForest forest2 = MultiDecisionForest.load(new Configuration(), new Path("saved-trees/10-trees-1356520883665.txt"));
-//        MultiDecisionForest forest3 = MultiDecisionForest.load(new Configuration(), new Path("saved-trees/10-trees-1356520884265.txt"));
-//        MultiDecisionForest forest4 = MultiDecisionForest.load(new Configuration(), new Path("saved-trees/10-trees-1356520887134.txt"));
+//        File savedTrees = new File("saved-trees");
+//        File[] files = savedTrees.listFiles();
 //
-//        List<Node> trees = forest1.getTrees();
-//        trees.addAll(forest2.getTrees());
-//        trees.addAll(forest3.getTrees());
-//        trees.addAll(forest4.getTrees());
+//        int filesUsed = 0;
+//        for (File file : files) {
+//            if(file.getName().startsWith("10-trees")) {
+//                filesUsed++;
+//                try {
+//                    MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(file.getPath()));
+//                    trees.addAll(forest.getTrees());
+//                } catch(Exception e) {
+//                    System.out.println("file.getPath() = " + file.getPath());
+//                }
+//
+//            }
+//        }
+//
+//        numberOfTrees = filesUsed * 10;
 //
 //        MultiDecisionForest forest = new MultiDecisionForest(trees);
 
