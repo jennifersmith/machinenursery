@@ -1,8 +1,11 @@
 package main.java;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.df.DecisionForest;
 import org.apache.mahout.classifier.df.builder.DefaultTreeBuilder;
 import org.apache.mahout.classifier.df.data.*;
+import org.apache.mahout.classifier.df.node.Node;
 import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
@@ -33,10 +36,12 @@ public class MahoutPlaybox {
             pixelsToIgnore.add(Integer.parseInt(value));
         }
 
+        // might need to change the descriptor if we have less features
 
-        String descriptor = "L N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N N ";
         String[] trainDataValues = fileAsStringArray("data/train.csv", 42000, pixelsToIgnore);
         String[] testDataValues = testFileAsStringArray("data/test.csv", pixelsToIgnore);
+
+        String descriptor = buildDescriptor(trainDataValues[0].split(",").length - 1);
 
         // take 90 percent to be the test data
         String[] part1 = new String[trainDataValues.length / 10 * 9];
@@ -51,7 +56,7 @@ public class MahoutPlaybox {
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(100);
+        potentialTrees.add(10);
 
 
         for (int numberOfTrees : potentialTrees) {
@@ -62,6 +67,14 @@ public class MahoutPlaybox {
             System.out.println(numberOfTrees + " took " + duration + " milli seconds");
         }
 
+    }
+
+    private static String buildDescriptor(int numberOfFeatures) {
+        StringBuilder builder = new StringBuilder("L ");
+        for (int i = 0; i < numberOfFeatures; i++) {
+            builder.append("N ");
+        }
+        return builder.toString();
     }
 
     private static void saveTree(int numberOfTrees, DecisionForest forest) throws IOException {
@@ -80,7 +93,7 @@ public class MahoutPlaybox {
 //
 //        int filesUsed = 0;
 //        for (File file : files) {
-//            if(file.getName().startsWith("100-trees") || file.getName().startsWith("50-trees")) {
+//            if(file.getName().startsWith("awesome-100-trees")) {
 //                filesUsed++;
 //                try {
 //                    MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(file.getPath()));
