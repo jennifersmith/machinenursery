@@ -62,7 +62,7 @@ public class MahoutPlaybox {
     }
 
     private static void saveTree(int numberOfTrees, DecisionForest forest) throws IOException {
-        DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees-" + System.currentTimeMillis() +".txt"));
+        DataOutputStream dos = new DataOutputStream(new FileOutputStream("saved-trees/" + numberOfTrees + "-trees-" + System.currentTimeMillis() + "-" + Thread.currentThread().getName() +".txt"));
         forest.write(dos);
     }
 
