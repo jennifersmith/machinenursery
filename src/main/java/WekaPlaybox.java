@@ -1,9 +1,7 @@
 package main.java;
 
-import weka.associations.gsp.Element;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.MultiBoostAB;
-import weka.classifiers.pmml.consumer.NeuralNetwork;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -21,10 +19,13 @@ public class WekaPlaybox {
 
         FastVector attributes = attributes();
 
-        Instances instances = new Instances("digit recognizer", attributes, 1000);
+        Instances instances = new Instances("digit recognizer", attributes, 40000);
         instances.setClassIndex(0);
 
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv");
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv", 2000);
+
+        long end = System.currentTimeMillis();
+        System.out.println("data parsed: " + (end - start));
 
         for (String trainingDataValue : trainingDataValues) {
             Instance instance = createInstance(trainingDataValue);
@@ -33,7 +34,10 @@ public class WekaPlaybox {
 
         Classifier classifier = buildClassifier(instances);
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv");
+        end = System.currentTimeMillis();
+        System.out.println("classifier built: " + (end - start));
+
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000);
 
         int total = testDataValues.length;
         int numberCorrect = 0;
@@ -45,28 +49,26 @@ public class WekaPlaybox {
                 numberCorrect++;
             }
             out.println((int) iterate.getPrediction());
-//            System.out.println("Actual: " + iterate.getActual() + ", Prediction: " + iterate.getPrediction());
         }
         out.close();
         System.out.println("Number correct: " + numberCorrect);
         System.out.println("Total: " + total);
         System.out.println("Accuracy: " + new BigDecimal(numberCorrect).divide(new BigDecimal(total), BigDecimal.ROUND_HALF_DOWN, 3).doubleValue());
 
-        long end = System.currentTimeMillis();
-
+        end = System.currentTimeMillis();
         System.out.println("time: " + (end - start));
     }
 
     private static Classifier buildClassifier(Instances instances) throws Exception {
         RandomForest randomForest = new RandomForest();
-        randomForest.setNumTrees(2);
-//        randomForest.buildClassifier(instances);
-//        return randomForest;
+        randomForest.setNumTrees(500);
+        randomForest.buildClassifier(instances);
+        return randomForest;
 
-        MultiBoostAB multiBoostAB = new MultiBoostAB();
-        multiBoostAB.setClassifier(randomForest);
-        multiBoostAB.buildClassifier(instances);
-        return multiBoostAB;
+//        MultiBoostAB multiBoostAB = new MultiBoostAB();
+//        multiBoostAB.setClassifier(randomForest);
+//        multiBoostAB.buildClassifier(instances);
+//        return multiBoostAB;
 
 //        AdaBoostM1 adaBoostM1 = new AdaBoostM1();
 //        adaBoostM1.setClassifier(randomForest);

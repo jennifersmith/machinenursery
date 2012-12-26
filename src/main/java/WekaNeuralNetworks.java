@@ -3,10 +3,8 @@ package main.java;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
-import weka.classifiers.misc.SerializedClassifier;
 import weka.core.*;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
@@ -15,10 +13,11 @@ public class WekaNeuralNetworks {
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv");
+        int numberToRead = 1000;
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead);
         FastVector attributes = attributes();
 
-        Instances instances = new Instances("digit recognizer", attributes, 1000);
+        Instances instances = new Instances("digit recognizer", attributes, numberToRead);
         instances.setClassIndex(0);
 
         for (String trainingDataValue : trainingDataValues) {
@@ -26,9 +25,9 @@ public class WekaNeuralNetworks {
             instances.add(instance);
         }
 
-        Classifier multilayerPerceptron = buildClassifier(instances, "weka-attempts/neural-networks");
+        Classifier multilayerPerceptron = buildClassifier(instances, "weka-attempts/neural-networks", "17");
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv");
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000);
 
         int total = testDataValues.length;
         int numberCorrect = 0;
@@ -52,11 +51,13 @@ public class WekaNeuralNetworks {
         System.out.println("time: " + (end - start));
     }
 
-    private static Classifier buildClassifier(Instances instances, String path) throws Exception {
+    private static Classifier buildClassifier(Instances instances, String path, String layers) throws Exception {
         MultilayerPerceptron classifier = new MultilayerPerceptron();
-        classifier.setHiddenLayers("17");
+//        classifier.setDecay(true);
+//        classifier.setLearningRate(0.5);
+//        classifier.setGUI(true);
+        classifier.setHiddenLayers(layers);
         classifier.buildClassifier(instances);
-
         Debug.saveToFile(path, classifier);
 
 //        SerializedClassifier classifier = new SerializedClassifier();
@@ -78,7 +79,13 @@ public class WekaNeuralNetworks {
         Instance instance = new Instance(785);
 
         for (int i = 1; i < columns.length; i++) {
-            instance.setValue(new Attribute("pixel" + (i-1), i), new Double(columns[i]));
+            Double val = new Double(columns[i]);
+            if(val >= 128){
+                val = Double.valueOf(1);
+            } else{
+                val = Double.valueOf(0);
+            }
+            instance.setValue(new Attribute("pixel" + (i-1), i), val);
         }
 
         instance.setDataset(instances);
@@ -92,7 +99,13 @@ public class WekaNeuralNetworks {
         instance.setValue(digit(), columns[0]);
 
         for (int i = 1; i < columns.length; i++) {
-            instance.setValue(new Attribute("pixel" + (i-1), i), new Double(columns[i]));
+            Double val = new Double(columns[i]);
+            if(val >= 128){
+                val = Double.valueOf(1);
+            } else{
+                val = Double.valueOf(0);
+            }
+            instance.setValue(new Attribute("pixel" + (i-1), i), val);
         }
 
         return instance;
@@ -100,7 +113,8 @@ public class WekaNeuralNetworks {
 
     private static FastVector attributes() {
         FastVector attributes = new FastVector();
-        attributes.addElement(digit());
+        attributes.addElement(
+                digit());
 
         for (int i = 0; i <= 783; i++) {
             attributes.addElement(new Attribute("pixel" + i));

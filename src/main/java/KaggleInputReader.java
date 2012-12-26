@@ -8,17 +8,19 @@ import java.util.ArrayList;
 
 
 public class KaggleInputReader {
-    public static String[] fileAsStringArray(String file) {
+    public static String[] fileAsStringArray(String file, int numberToRead) {
         ArrayList<String> list = new ArrayList<String>();
 
+        int readSoFar = 0;
         try {
             DataInputStream in = new DataInputStream(new FileInputStream(file));
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String strLine;
             br.readLine(); // discard top one
-            while ((strLine = br.readLine()) != null) {
+            while ((strLine = br.readLine()) != null && numberToRead > readSoFar) {
                 list.add(strLine);
+                readSoFar++;
             }
 
             in.close();
