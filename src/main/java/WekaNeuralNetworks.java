@@ -16,7 +16,7 @@ import static main.java.KaggleInputReader.fileAsStringArray;
 public class WekaNeuralNetworks {
     public static void main(String[] args) throws Exception {
         List<Integer> pixelsToIgnore = new ArrayList<Integer>();
-        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 100, new ArrayList<Integer>())) {
+        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 100)) {
             pixelsToIgnore.add(Integer.parseInt(value));
         }
 
@@ -24,7 +24,7 @@ public class WekaNeuralNetworks {
 
         int numberToRead = 1000;
         String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, pixelsToIgnore);
-        FastVector attributes = attributes();
+        FastVector attributes = attributes(trainingDataValues[0].split(",").length);
 
         Instances instances = new Instances("digit recognizer", attributes, numberToRead);
         instances.setClassIndex(0);
@@ -36,7 +36,7 @@ public class WekaNeuralNetworks {
 
         Classifier multilayerPerceptron = buildClassifier(instances, "weka-attempts/neural-networks", "17");
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, new ArrayList<Integer>());
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, pixelsToIgnore);
 
         int total = testDataValues.length;
         int numberCorrect = 0;
@@ -85,15 +85,15 @@ public class WekaNeuralNetworks {
 
     private static Instance createTrainingDataBasedInstanceToPredict(String testDataValue, Instances instances) {
         String[] columns = testDataValue.split(",");
-        Instance instance = new Instance(785);
+        Instance instance = new Instance(columns.length);
 
         for (int i = 1; i < columns.length; i++) {
             Double val = new Double(columns[i]);
-            if(val >= 128){
-                val = Double.valueOf(1);
-            } else{
-                val = Double.valueOf(0);
-            }
+//            if(val >= 128){
+//                val = (double) 1;
+//            } else{
+//                val = (double) 0;
+//            }
             instance.setValue(new Attribute("pixel" + (i-1), i), val);
         }
 
@@ -110,9 +110,9 @@ public class WekaNeuralNetworks {
         for (int i = 1; i < columns.length; i++) {
             Double val = new Double(columns[i]);
             if(val >= 128){
-                val = Double.valueOf(1);
+                val = (double) 1;
             } else{
-                val = Double.valueOf(0);
+                val = (double) 0;
             }
             instance.setValue(new Attribute("pixel" + (i-1), i), val);
         }
@@ -120,12 +120,11 @@ public class WekaNeuralNetworks {
         return instance;
     }
 
-    private static FastVector attributes() {
+    private static FastVector attributes(int size) {
         FastVector attributes = new FastVector();
-        attributes.addElement(
-                digit());
+        attributes.addElement(digit());
 
-        for (int i = 0; i <= 783; i++) {
+        for (int i = 0; i <= (size - 2); i++) {
             attributes.addElement(new Attribute("pixel" + i));
         }
 
