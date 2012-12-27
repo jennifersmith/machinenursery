@@ -1,4 +1,5 @@
 (ns machinenursery.random-forest-mahout
+  (:gen-class)
   (:import main.java.MahoutPlaybox)
   (:use machinenursery.core))
 
@@ -22,4 +23,4 @@
                               (strings test-data )
                               descriptors)))
 
-(defn run-it [] (MahoutPlaybox/main (strings '())))
+(defn -main [& args] (MahoutPlaybox/main (strings '())))

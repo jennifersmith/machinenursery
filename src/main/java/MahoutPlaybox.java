@@ -56,7 +56,7 @@ public class MahoutPlaybox {
         //===================WOOOP
 
         List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(100);
+        potentialTrees.add(10);
 
 
         for (int numberOfTrees : potentialTrees) {
