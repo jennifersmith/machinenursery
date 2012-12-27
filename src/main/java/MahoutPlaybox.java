@@ -31,6 +31,8 @@ public class MahoutPlaybox {
 
 
     public static void main(String[] args) throws IOException, DescriptorException {
+        int numberOfTrees = Integer.parseInt(args[0]);
+
         List<Integer> pixelsToIgnore = new ArrayList<Integer>();
         for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000)) {
             pixelsToIgnore.add(Integer.parseInt(value));
@@ -55,17 +57,11 @@ public class MahoutPlaybox {
 
         //===================WOOOP
 
-        List<Integer> potentialTrees = new ArrayList<Integer>();
-        potentialTrees.add(10);
-
-
-        for (int numberOfTrees : potentialTrees) {
-            long startTime = System.currentTimeMillis();
-            runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
-            long endTime = System.currentTimeMillis();
-            double duration = new BigDecimal(endTime - startTime).divide(new BigDecimal("1000")).doubleValue();
-            System.out.println(numberOfTrees + " took " + duration + " milli seconds");
-        }
+        long startTime = System.currentTimeMillis();
+        runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
+        long endTime = System.currentTimeMillis();
+        double duration = new BigDecimal(endTime - startTime).divide(new BigDecimal("1000")).doubleValue();
+        System.out.println(numberOfTrees + " took " + duration + " milli seconds");
 
     }
 
