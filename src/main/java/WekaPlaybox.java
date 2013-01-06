@@ -22,7 +22,7 @@ public class WekaPlaybox {
         Instances instances = new Instances("digit recognizer", attributes, 40000);
         instances.setClassIndex(0);
 
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv", 2000, new ArrayList<Integer>());
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train.csv", 2000, new ArrayList<Integer>(), false);
 
         long end = System.currentTimeMillis();
         System.out.println("data parsed: " + (end - start));
@@ -37,7 +37,7 @@ public class WekaPlaybox {
         end = System.currentTimeMillis();
         System.out.println("classifier built: " + (end - start));
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, new ArrayList<Integer>());
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, new ArrayList<Integer>(), false);
 
         int total = testDataValues.length;
         int numberCorrect = 0;

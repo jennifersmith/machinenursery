@@ -23,7 +23,7 @@ public class WekaNeuralNetworks {
         long start = System.currentTimeMillis();
 
         int numberToRead = 1000;
-        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, pixelsToIgnore);
+        String[] trainingDataValues = KaggleInputReader.fileAsStringArray("data/train_head.csv", numberToRead, pixelsToIgnore, false);
         FastVector attributes = attributes(trainingDataValues[0].split(",").length);
 
         Instances instances = new Instances("digit recognizer", attributes, numberToRead);
@@ -36,7 +36,7 @@ public class WekaNeuralNetworks {
 
         Classifier multilayerPerceptron = buildClassifier(instances, "weka-attempts/neural-networks", "17");
 
-        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, pixelsToIgnore);
+        String[] testDataValues = KaggleInputReader.fileAsStringArray("data/train_tail.csv", 1000, pixelsToIgnore, false);
 
         int total = testDataValues.length;
         int numberCorrect = 0;

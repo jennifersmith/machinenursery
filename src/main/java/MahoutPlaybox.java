@@ -1,11 +1,8 @@
 package main.java;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.df.DecisionForest;
 import org.apache.mahout.classifier.df.builder.DefaultTreeBuilder;
 import org.apache.mahout.classifier.df.data.*;
-import org.apache.mahout.classifier.df.node.Node;
 import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
@@ -31,16 +28,28 @@ public class MahoutPlaybox {
 
 
     public static void main(String[] args) throws IOException, DescriptorException {
+        if(args.length < 3) {
+            throw new RuntimeException("Usage: main.java.MahoutPlaybox [numberOfTrees] [ignorePixels(true|false)] [useThresholding(true|false)]");
+        }
+
         int numberOfTrees = Integer.parseInt(args[0]);
+        boolean ignorePixels = Boolean.parseBoolean(args[1]);
+        boolean useThresholding = Boolean.parseBoolean(args[2]);
+
+        System.out.println("Building " + numberOfTrees + " trees. Ignoring pixels? " + ignorePixels + ". Using thresholding? " + useThresholding);
 
         List<Integer> pixelsToIgnore = new ArrayList<Integer>();
         for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000)) {
             pixelsToIgnore.add(Integer.parseInt(value));
         }
 
+        if(!ignorePixels) {
+            pixelsToIgnore = new ArrayList<Integer>();
+        }
+
         // might need to change the descriptor if we have less features
 
-        String[] trainDataValues = fileAsStringArray("data/train.csv", 42000, pixelsToIgnore);
+        String[] trainDataValues = fileAsStringArray("data/train.csv", 42000, pixelsToIgnore, useThresholding);
         String[] testDataValues = testFileAsStringArray("data/test.csv", pixelsToIgnore);
 
         String descriptor = buildDescriptor(trainDataValues[0].split(",").length - 1);
@@ -61,7 +70,7 @@ public class MahoutPlaybox {
         runIteration(numberOfTrees, trainDataValues, testDataValues, descriptor);
         long endTime = System.currentTimeMillis();
         double duration = new BigDecimal(endTime - startTime).divide(new BigDecimal("1000")).doubleValue();
-        System.out.println(numberOfTrees + " took " + duration + " milli seconds");
+        System.out.println(numberOfTrees + " took " + duration + " seconds");
 
     }
 

@@ -7,7 +7,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -36,9 +35,8 @@ public class KaggleInputReader {
     }
 
 
-    public static String[] fileAsStringArray(String file, int numberToRead, List<Integer> pixelsToIgnore) {
+    public static String[] fileAsStringArray(String file, int numberToRead, List<Integer> pixelsToIgnore, boolean threshold) {
         ArrayList<String> list = new ArrayList<String>();
-        boolean threshold = false;
         int readSoFar = 0;
         try {
             DataInputStream in = new DataInputStream(new FileInputStream(file));
