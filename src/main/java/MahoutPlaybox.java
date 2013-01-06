@@ -89,7 +89,7 @@ public class MahoutPlaybox {
 //
 //        int filesUsed = 0;
 //        for (File file : files) {
-//            if(file.getName().startsWith("awesome-100-trees")) {
+//            if(file.getName().startsWith("10-trees-threshold")) {
 //                filesUsed++;
 //                try {
 //                    MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(file.getPath()));

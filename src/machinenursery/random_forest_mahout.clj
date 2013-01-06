@@ -23,6 +23,5 @@
                               (strings test-data )
                               descriptors)))
 
-(def number-of-trees 5)
-
-(defn -main [& args] (MahoutPlaybox/main (strings [(str number-of-trees)])))
+(defn -main [number-of-trees & args]
+  (MahoutPlaybox/main (strings [number-of-trees])))

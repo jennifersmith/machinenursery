@@ -1,6 +1,5 @@
 (ns machinenursery.core
   (:require [clojure.string :as string])
-  (:use incanter.stats)
   (:use clojure.java.io ))
 
 (defn parse [reader]
@@ -34,27 +33,7 @@
 (def read-train-set-raw  (partial read-raw "data/train.csv"))
 (def read-test-set-raw (partial read-raw "data/test.csv" ))
 
-(defn parse [row]
-  (map #(clojure.string/split % #",") row))
 
-(defn tuples [rows]
-  (map create-tuple rows))
-
-(defn calculate-variances [rows]
-  (map incanter.stats/variance (apply map vector (map :pixels rows))))
-
-(def parsed-rows
-  (tuples (parse (read-train-set-raw 42000))))
-
-
-(def pixels-to-remove
-  (->> parsed-rows
-       (calculate-variances)
-       (map vector (range 0 784))
-       (filter #(= 0.0 (get % 1)))
-       (map first)))
-
-(map vector (range 1 784) (calculate-variances (take 5 parsed-rows)))
 
 
 
