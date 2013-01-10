@@ -1,5 +1,6 @@
 (ns machinenursery.pre-processing
   (:use machinenursery.core)
+  (:require [clojure.string :as string])
   (:require [clojure.java.io :as io]))
 
 (defn tuples [rows]
@@ -33,10 +34,10 @@
 
 (defn to-file-format [row]
   (let [formatted-pixels
-        (apply str (vec (interpose " " (:pixels one))))]
-    (str (:label row) " " formatted-pixels)))
+        (apply str (interpose "," (:pixels row)))]
+    (str (:label row) "," formatted-pixels)))
 
-(map (comp to-file-format remove-unwanted-pixels) (take 2 (data)))
+;;(map (comp to-file-format remove-unwanted-pixels) (take 2 (data)))
 
 (defn write-to-file [file-path coll]
   (spit file-path (apply str (vec (interpose "\n" coll)))))
@@ -46,8 +47,19 @@
     (doseq [line coll]
       (.write wrt (str line "\n")))))
 
-(defn -main []
-  (write-to-file-big "/tmp/new-train.txt"
-                 (map (comp to-file-format remove-unwanted-pixels) parsed-rows)))
+(defn blah []
+  )
 
-(spit "/tmp/new-train.txt" (apply str (vec (interpose "\n" (map remove-unwanted-pixels (take 2 (data)))))))
+(defn split-on-comma [line]
+  (string/split line #","))
+
+(defn -main []
+  (with-open [rdr (clojure.java.io/reader "data/train.csv")
+              wrt (clojure.java.io/writer "/tmp/huge.csv")]
+    (doseq [line (drop 1 (line-seq rdr))]
+      (let [line-with-removed-pixels
+             ((comp to-file-format remove-unwanted-pixels create-tuple split-on-comma) line)]
+        (.write wrt (str line-with-removed-pixels "\n"))))))
+
+;;(spit "/tmp/new-train.txt" (apply str (vec (interpose "\n" (map remove-unwanted-pixels (take 2 (data)))))))
+
