@@ -10,7 +10,6 @@ import org.uncommons.maths.Maths;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static main.java.KaggleInputReader.fileAsStringArray;
@@ -28,7 +27,8 @@ public class MahoutPlaybox {
 
 
     public static void main(String[] args) throws IOException, DescriptorException {
-        if(args.length < 3) {
+        String trainingSetFile = "data/train.csv";
+        if (args.length < 3) {
             throw new RuntimeException("Usage: main.java.MahoutPlaybox [numberOfTrees] [ignorePixels(true|false)] [useThresholding(true|false)]");
         }
 
@@ -38,19 +38,14 @@ public class MahoutPlaybox {
 
         System.out.println("Building " + numberOfTrees + " trees. Ignoring pixels? " + ignorePixels + ". Using thresholding? " + useThresholding);
 
-        List<Integer> pixelsToIgnore = new ArrayList<Integer>();
-        for (String value : fileAsStringArray("pixels-with-no-variance.txt", 42000)) {
-            pixelsToIgnore.add(Integer.parseInt(value));
-        }
-
-        if(!ignorePixels) {
-            pixelsToIgnore = new ArrayList<Integer>();
+        if(ignorePixels) {
+            trainingSetFile = "data/huge.csv";
         }
 
         // might need to change the descriptor if we have less features
 
-        String[] trainDataValues = fileAsStringArray("data/train.csv", 42000, pixelsToIgnore, useThresholding);
-        String[] testDataValues = testFileAsStringArray("data/test.csv", pixelsToIgnore);
+        String[] trainDataValues = fileAsStringArray(trainingSetFile, 42000, useThresholding);
+        String[] testDataValues = testFileAsStringArray("data/test.csv");
 
         String descriptor = buildDescriptor(trainDataValues[0].split(",").length - 1);
 
@@ -158,7 +153,7 @@ public class MahoutPlaybox {
         return DataLoader.loadData(dataset, sData);
     }
 
-    private static String[] testFileAsStringArray(String file, List<Integer> pixelsToIgnore) {
+    private static String[] testFileAsStringArray(String file) {
         ArrayList<String> list = new ArrayList<String>();
 
         int readSoFar = 0;
@@ -169,11 +164,7 @@ public class MahoutPlaybox {
             String strLine;
             br.readLine(); // discard top one
             while ((strLine = br.readLine()) != null) {
-
-                if (!pixelsToIgnore.contains(readSoFar)) {
-                    list.add("-," + strLine);
-                }
-
+                list.add("-," + strLine);
                 readSoFar++;
             }
 

@@ -35,7 +35,7 @@ public class KaggleInputReader {
     }
 
 
-    public static String[] fileAsStringArray(String file, int numberToRead, List<Integer> pixelsToIgnore, boolean threshold) {
+    public static String[] fileAsStringArray(String file, int numberToRead, boolean threshold) {
         ArrayList<String> list = new ArrayList<String>();
         int readSoFar = 0;
         try {
@@ -51,17 +51,15 @@ public class KaggleInputReader {
                 rowBuilder.add(row[0]);
 
                 for (int i = 1; i < row.length; i++) {
-                    if (!pixelsToIgnore.contains(i)) {
-                        int pixelValue = Integer.parseInt(row[i]);
-                        if (threshold) {
-                            if (pixelValue < 127) {
-                                pixelValue = 0;
-                            } else {
-                                pixelValue = 1;
-                            }
+                    int pixelValue = Integer.parseInt(row[i]);
+                    if (threshold) {
+                        if (pixelValue < 127) {
+                            pixelValue = 0;
+                        } else {
+                            pixelValue = 1;
                         }
-                        rowBuilder.add(String.valueOf(pixelValue));
                     }
+                    rowBuilder.add(String.valueOf(pixelValue));
                 }
 
                 list.add(StringUtils.join(",", rowBuilder));
