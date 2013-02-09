@@ -51,7 +51,7 @@ public class KaggleInputReader {
                 rowBuilder.add(row[0]);
 
                 for (int i = 1; i < row.length; i++) {
-                    int pixelValue = Integer.parseInt(row[i]);
+                    int pixelValue = (int) Double.parseDouble(row[i]);
                     if (threshold) {
                         if (pixelValue < 127) {
                             pixelValue = 0;

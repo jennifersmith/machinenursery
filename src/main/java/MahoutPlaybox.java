@@ -1,8 +1,11 @@
 package main.java;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.mahout.classifier.df.DecisionForest;
 import org.apache.mahout.classifier.df.builder.DefaultTreeBuilder;
 import org.apache.mahout.classifier.df.data.*;
+import org.apache.mahout.classifier.df.node.Node;
 import org.apache.mahout.classifier.df.ref.SequentialBuilder;
 import org.apache.mahout.common.RandomUtils;
 import org.uncommons.maths.Maths;
@@ -10,6 +13,7 @@ import org.uncommons.maths.Maths;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static main.java.KaggleInputReader.fileAsStringArray;
@@ -27,7 +31,7 @@ public class MahoutPlaybox {
 
 
     public static void main(String[] args) throws IOException, DescriptorException {
-        String trainingSetFile = "data/train.csv";
+        String trainingSetFile = "data/train-plus-features.csv";
         if (args.length < 3) {
             throw new RuntimeException("Usage: main.java.MahoutPlaybox [numberOfTrees] [ignorePixels(true|false)] [useThresholding(true|false)]");
         }
@@ -45,7 +49,8 @@ public class MahoutPlaybox {
         // might need to change the descriptor if we have less features
 
         String[] trainDataValues = fileAsStringArray(trainingSetFile, 42000, useThresholding);
-        String[] testDataValues = testFileAsStringArray("data/test.csv");
+//        String[] testDataValues = testFileAsStringArray("data/huge-test.csv");
+        String[] testDataValues = new String[]{};
 
         String descriptor = buildDescriptor(trainDataValues[0].split(",").length - 1);
 
@@ -83,17 +88,18 @@ public class MahoutPlaybox {
     }
 
     public static void runIteration(int numberOfTrees, String[] trainDataValues, String[] testDataValues, String descriptor) throws DescriptorException, IOException {
+        System.out.println("numberOfTrees = " + numberOfTrees);
         Data data = loadData(trainDataValues, descriptor);
         Random rng = RandomUtils.getRandom();
 
-//        List<Node> trees = new ArrayList<Node>();
+//        List<org.apache.mahout.classifier.df.node.Node> trees = new ArrayList<Node>();
 //
 //        File savedTrees = new File("saved-trees");
 //        File[] files = savedTrees.listFiles();
-//
+
 //        int filesUsed = 0;
 //        for (File file : files) {
-//            if(file.getName().startsWith("10-trees-threshold")) {
+//            if(file.getName().startsWith("100-trees")) {
 //                filesUsed++;
 //                try {
 //                    MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(file.getPath()));
@@ -106,7 +112,8 @@ public class MahoutPlaybox {
 //        }
 //
 //        numberOfTrees = filesUsed;
-//
+
+//        System.out.println("gonna build the forest");
 //        MultiDecisionForest forest = new MultiDecisionForest(trees);
 
         DecisionForest forest = buildForest(numberOfTrees, data);
@@ -129,7 +136,7 @@ public class MahoutPlaybox {
                 double classify = forest.classify(test.getDataset(), rng, oneSample);
                 int label = data.getDataset().valueOf(0, String.valueOf((int) classify));
 
-//                System.out.println("label = " + label + " actual = " + actualLabel);
+                System.out.println("label = " + label + " actual = " + actualLabel);
 
                 if (label == actualLabel) {
                     numberCorrect++;

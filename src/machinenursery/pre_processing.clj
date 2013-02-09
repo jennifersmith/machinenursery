@@ -32,10 +32,18 @@
         (->> row :pixels (map-indexed vector) (remove dead-to-us?) (map second))]
     {:pixels new-pixels :label (:label row)}))
 
+(defn remove-unwanted-pixels-test [row]
+  (->> row (map-indexed vector) (remove dead-to-us?) (map second)))
+
 (defn to-file-format [row]
   (let [formatted-pixels
         (apply str (interpose "," (:pixels row)))]
     (str (:label row) "," formatted-pixels)))
+
+(defn to-test-file-format [row]
+  (let [formatted-pixels
+        (apply str (interpose "," row))]
+    (str formatted-pixels)))
 
 ;;(map (comp to-file-format remove-unwanted-pixels) (take 2 (data)))
 
@@ -47,19 +55,60 @@
     (doseq [line coll]
       (.write wrt (str line "\n")))))
 
-(defn blah []
-  )
-
 (defn split-on-comma [line]
   (string/split line #","))
 
-(defn -main []
+(defn clean-train-file []
   (with-open [rdr (clojure.java.io/reader "data/train.csv")
               wrt (clojure.java.io/writer "/tmp/huge.csv")]
     (doseq [line (drop 1 (line-seq rdr))]
       (let [line-with-removed-pixels
              ((comp to-file-format remove-unwanted-pixels create-tuple split-on-comma) line)]
         (.write wrt (str line-with-removed-pixels "\n"))))))
+
+(defn clean-test-file []
+  (with-open [rdr (clojure.java.io/reader "data/test.csv")
+              wrt (clojure.java.io/writer "/tmp/huge-test.csv")]
+    (doseq [line (drop 1 (line-seq rdr))]
+      (let [line-with-removed-pixels
+             ((comp to-test-file-format remove-unwanted-pixels-test get-pixels split-on-comma) line)]
+        (.write wrt (str line-with-removed-pixels "\n"))))))
+
+
+(comment (defn -main [] (clean-train-file)))
+
+(defn read-train-file []
+  (with-open [rdr (clojure.java.io/reader "data/train.csv")]
+    (map (comp create-tuple split-on-comma) (vec (drop 1 (line-seq rdr))))))
+
+(defn -main []
+  (with-open [wrt (clojure.java.io/writer "/tmp/blah.txt")]
+    (doseq [line parsed-rows]
+      (let [line-without-pixels (to-file-format (remove-unwanted-pixels line))]
+        (.write wrt (str line-without-pixels "\n"))))))
+
+(comment  (defn -main []
+            (with-open [wrt (clojure.java.io/writer "/tmp/huge-file.csv")]
+              (doseq [line (read-train-file)]
+                (let [line-with-removed-pixels (to-file-format (remove-unwanted-pixels line))]
+                  (.write wrt (str line-with-removed-pixels "\n")))))))
+
+(defn parse-train-set-me [reader]
+  (let [lines (parse reader)]
+    (map #((do (print %1) (create-tuple %1))) lines)))
+
+(defn read-train-set-me [n]
+  (map create-tuple
+       (with-open [train-set-rd (clojure.java.io/reader "data/train.csv")]
+         (vec (take n (parse-train-set-me train-set-rd))))))
+
+(comment  (defn -main [](read-train-set-me 1)))
+
+(defn all-the-data []
+  (with-open [train-set-rd (clojure.java.io/reader "data/train.csv")]
+    (vec (line-seq train-set-rd))))
+
+;;; (defn -main [] (map identity (all-the-data)))
 
 ;;(spit "/tmp/new-train.txt" (apply str (vec (interpose "\n" (map remove-unwanted-pixels (take 2 (data)))))))
 
