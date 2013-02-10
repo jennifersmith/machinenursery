@@ -61,4 +61,4 @@ survivalSummary(classes)
 cor(titanic$survived, titanic$age)
 
 library(Hmisc)
-ageGroups <- cut2(pData$AGEP, g=5)
+ageGroups <- cut2(titanic$age, g=5)
